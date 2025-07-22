@@ -57,27 +57,89 @@
         .lista-animali {
             width: 100%;
         }
+
+        .modal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
     </style>
 
     <!-- componente ReactApp -->
     <script type="text/babel">
         const { useState } = React;
 
+        // Componente Modal
+        function Modal({
+            title = "Lista Animali",
+            content = "",
+            show = false,
+            onClose = () => { },
+            onConfirm = () => { }
+        }) {
+            return show && ReactDOM.createPortal(
+                <div className="modal-container">
+                    <div className="modal">
+                        <h2>{title}</h2>
+                        <div>
+                            {content}
+                            <button onClick={onConfirm}>Conferma</button>
+                        </div>
+                        <button onClick={onClose}>Annulla</button>
+                    </div>
+                </div>,
+                document.body
+            )
+        }
+
         const ReactApp = () => {
 
             const [animals, setAnimals] = useState([])
-            const animalsChoices = ["Cane", "Gatto", "Pappagallo", "Cavallo", "Panda"];
 
-            const addAnimal = () => {
-                const randomIndex = Math.floor(Math.random() * animalsChoices.length);
-                const randomAnimal = animalsChoices[randomIndex];
-                setAnimals([...animals, randomAnimal]);
+            const [show, setShow] = useState(false);
+            const [inputValue, setInputValue] = useState("");
+
+            const addAnimal = (animale) => {
+                if (animale.trim()) {
+                    setAnimals([...animals, animale.trim()]);
+                    setInputValue(""); // Pulisce il campo di input dopo l'aggiunta
+                }
             }
 
 
             return (
                 <>
-                    <button onClick={addAnimal}>Aggiungi Animale</button>
+                    <button onClick={() => { setShow(true) }}>Aggiungi Animale</button>
+                    <section>
+                        <Modal
+                            title="Lista Animali"
+                            content={
+
+                                <input
+                                    type="text"
+                                    placeholder="Nome animale da aggiungere..."
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                />
+                            }
+                            show={show}
+                            onClose={() => setShow(false)}
+                            onConfirm={() => {
+                                addAnimal(inputValue);
+                            }} />
+                    </section>
                     <details>
                         <summary>Animali</summary>
                         <ul>
@@ -89,11 +151,14 @@
 
                 </>
             )
-
-
         }
 
+
+
+
     </script>
+
+
 
 
     <script type="text/babel">
